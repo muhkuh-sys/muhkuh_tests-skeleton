@@ -66,8 +66,8 @@ env_default.Version('targets/version/version.h', 'templates/version.h')
 #
 # Build all sub-projects.
 #
-SConscript('crctest/SConscript')
-Import('crctest_netx500', 'crctest_netx56', 'crctest_netx50', 'crctest_netx10')
+SConscript('netx/SConscript')
+Import('testexe_netx500', 'testexe_netx56', 'testexe_netx50', 'testexe_netx10')
 
 
 #----------------------------------------------------------------------------
@@ -105,11 +105,9 @@ doc = env_default.Asciidoc('targets/doc/romcrc.html', 'README.asciidoc', ASCIIDO
 #
 # Make a local demo installation.
 #
-# Copy all binary binaries.
-Command('targets/testbench/netx/crctest_netx10.bin',  crctest_netx10,  Copy("$TARGET", "$SOURCE"))
-Command('targets/testbench/netx/crctest_netx50.bin',  crctest_netx50,  Copy("$TARGET", "$SOURCE"))
-Command('targets/testbench/netx/crctest_netx56.bin',  crctest_netx56,  Copy("$TARGET", "$SOURCE"))
-Command('targets/testbench/netx/crctest_netx500.bin', crctest_netx500, Copy("$TARGET", "$SOURCE"))
+
+# Copy all executables.
+Install('targets/testbench/netx/', [testexe_netx500, testexe_netx56, testexe_netx50, testexe_netx10])
 
 # Copy all LUA scripts.
 #Command('targets/testbench/lua/ramtest.lua',  'lua/ramtest.lua', Copy("$TARGET", "$SOURCE"))

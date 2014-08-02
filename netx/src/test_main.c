@@ -11,7 +11,7 @@
 /*--------------------------------------------------------------------------*/
 
 
-TEST_RESULT_T test_routine(USER_PARAMETER_T *ptUserParameter)
+static TEST_RESULT_T test_routine(USER_PARAMETER_T *ptUserParameter)
 {
 	TEST_RESULT_T tResult;
 	unsigned long ulSum;
@@ -60,6 +60,8 @@ TEST_RESULT_T test_routine(USER_PARAMETER_T *ptUserParameter)
 		/* The sum is odd. */
 		uprintf("The sum is odd -> ERROR!\n");
 	}
+	
+	return tResult;
 }
 
 

@@ -4,56 +4,54 @@
 
 	.extern test_main
 
-	.global NetxTestParameter_Init
 	.global start
 	.global stack_top
 
-#if ASIC_TYP==500 || ASIC_TYP==100
-	.equ Adr_dTCM_base,			0x10000000
-#endif
 
 @--------------------------------------
 
   .func start_init_s
 
+@ This code is started from the ROM code with the "call" command.
+@ The "call" command has one 32bit parameter. It is passed to this code in the
+@ register R0. For muhkuh tests this parameter must be the address of the test
+@ parameter structure.
+
 start:
-	stmfd	sp!, {r0, r1, r2, lr}
+	@ Save all working registers on the stack.
+	stmfd   sp!, {r0, r1, r2, r3, lr}
 
-	@ save pointer to netx parameter block
-	ldr	r1, =NetxTestParameter_Init
-	str	r0, [r1]
+	@ Save the stack pointer.
+	mov     r1, sp
+	ldr     r2, =stack_save
+	str     r1, [r2]
 
-	@ save debug console stack position
-	mov	r0, sp
-	ldr	r1, =blstack_save
-	str	r0, [r1]
+	@ Set own stack position
+	@ The ROM code does not have very much stack space on older netX
+	@ platforms.
+	ldr     r1, =stack_top
+	mov     sp, r1
 
-	@ set own stack position
-	ldr	r0, =stack_top
-	mov	sp, r0
-
-	@ clear .bss section (zero init)
-	mov	r0, #0
-	ldr	r1, =__bss_start__
-	ldr	r2, =__bss_end__
+	@ Clear .bss section (zero init).
+	mov     r1, #0
+	ldr     r2, =__bss_start__
+	ldr     r3, =__bss_end__
 clear_bss:
-	cmp	r1, r2
-	strlo	r0, [r1], #4
-	blo	clear_bss
+	cmp     r2, r3
+	strlo   r1, [r2], #4
+	blo     clear_bss
 
-	bl	call_test_main
+	@ Jump to the test_main routine.
+	bl      test_main
 
-	@ restore debug console stack
-	ldr	r1, =blstack_save
-	ldr	r0, [r1]
-	mov	sp, r0
+	@ Restore the stack pointer.
+	ldr     r1, =stack_save
+	ldr     r0, [r1]
+	mov     sp, r0
 
-	ldmfd	sp!, {r0, r1, r2, lr}
-	bx	lr
-
-call_test_main:
-	ldr	r0, =test_main
-	bx	r0
+	@ Restore all working registers and jump back to the ROM code.
+	ldmfd   sp!, {r0, r1, r2, r3, lr}
+	bx      lr
 
   .endfunc
 
@@ -61,10 +59,7 @@ call_test_main:
 
 	.align 4
 
-NetxTestParameter_Init:
-	.word 0
-
-blstack_save:
+stack_save:
 	.word 0
 
 @--------------------------------------

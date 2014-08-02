@@ -35,8 +35,7 @@ Import('platform_lib_netx500', 'platform_lib_netx56', 'platform_lib_netx50', 'pl
 sources_common = """
 	src/header.c
 	src/init_netx_test.S
-	src/main_test.c
-	src/netx_test.c
+	src/test_main.c
 """
 
 
@@ -48,37 +47,41 @@ sources_common = """
 # Define the include paths for all builds.
 aCppPath = ['src', '#platform/src', '#platform/src/lib', '#targets/version']
 
+# The test name is used to build the file name of the executable.
+# A test name of "skeleton" results in "skeleton_netx500.bin", "skeleton_netx56.bin" and so on.
+strTestName = "skeleton"
+
 # Build the netX500 executable.
 env_netx500_t = env_netx500_default.Clone()
 env_netx500_t.Replace(LDFILE = 'src/netx500/netx500.ld')
 env_netx500_t.Append(CPPPATH = aCppPath)
 src_netx500_t = env_netx500_t.SetBuildPath('targets/netx500', 'src', sources_common)
-elf_netx500_t = env_netx500_t.Elf('targets/netx500/crctest.elf', src_netx500_t + platform_lib_netx500)
-testexe_netx500 = env_netx500_t.ObjCopy('targets/netx500/crctest.bin', elf_netx500_t)
+elf_netx500_t = env_netx500_t.Elf('targets/netx500/testexe.elf', src_netx500_t + platform_lib_netx500)
+testexe_netx500 = env_netx500_t.ObjCopy('targets/netx500/%s_netx500.bin' % strTestName, elf_netx500_t)
 
 # Build the netX51/52 executable.
 env_netx56_t = env_netx56_default.Clone()
 env_netx56_t.Replace(LDFILE = 'src/netx56/netx56.ld')
 env_netx56_t.Append(CPPPATH = aCppPath)
 src_netx56_t = env_netx56_t.SetBuildPath('targets/netx56', 'src', sources_common)
-elf_netx56_t = env_netx56_t.Elf('targets/netx56/crctest.elf', src_netx56_t + platform_lib_netx56)
-testexe_netx56 = env_netx56_t.ObjCopy('targets/netx56/crctest.bin', elf_netx56_t)
+elf_netx56_t = env_netx56_t.Elf('targets/netx56/testexe.elf', src_netx56_t + platform_lib_netx56)
+testexe_netx56 = env_netx56_t.ObjCopy('targets/netx56/%s_netx56.bin' % strTestName, elf_netx56_t)
 
 # Build the netX50 executable.
 env_netx50_t = env_netx50_default.Clone()
 env_netx50_t.Replace(LDFILE = 'src/netx50/netx50.ld')
 env_netx50_t.Append(CPPPATH = aCppPath)
 src_netx50_t = env_netx50_t.SetBuildPath('targets/netx50', 'src', sources_common)
-elf_netx50_t = env_netx50_t.Elf('targets/netx50/crctest.elf', src_netx50_t + platform_lib_netx50)
-testexe_netx50 = env_netx50_t.ObjCopy('targets/netx50/crctest.bin', elf_netx50_t)
+elf_netx50_t = env_netx50_t.Elf('targets/netx50/testexe.elf', src_netx50_t + platform_lib_netx50)
+testexe_netx50 = env_netx50_t.ObjCopy('targets/netx50/%s_netx50.bin' % strTestName, elf_netx50_t)
 
 # Build the netX10 executable.
 env_netx10_t = env_netx10_default.Clone()
 env_netx10_t.Replace(LDFILE = 'src/netx10/netx10.ld')
 env_netx10_t.Append(CPPPATH = aCppPath)
 src_netx10_t = env_netx10_t.SetBuildPath('targets/netx10', 'src', sources_common)
-elf_netx10_t = env_netx10_t.Elf('targets/netx10/crctest.elf', src_netx10_t + platform_lib_netx10)
-testexe_netx10 = env_netx10_t.ObjCopy('targets/netx10/crctest.bin', elf_netx10_t)
+elf_netx10_t = env_netx10_t.Elf('targets/netx10/testexe.elf', src_netx10_t + platform_lib_netx10)
+testexe_netx10 = env_netx10_t.ObjCopy('targets/netx10/%s_netx10.bin' % strTestName, elf_netx10_t)
 
 Export('testexe_netx500', 'testexe_netx56', 'testexe_netx50', 'testexe_netx10')
 
