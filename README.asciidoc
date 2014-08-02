@@ -1,0 +1,23 @@
+Test case "ROM"
+===============
+Christoph Thelen <cthelen@hilscher.com>
+:Author Initials: CT
+
+
+[[About, About]]
+== About
+
+This document describes the "skeleton" test for the Muhkuh test framework. It is a starting point for the development of new tests.
+The chapter <<Test_description>> describes the operation of the test in detail.
+
+
+[[Test_description,Test description]]
+== Test description
+
+TODO: add a description of the test case here.
+
+
+[[Parameters, Parameters]]
+== Parameters
+
+TODO: add a description of the parameters here.
