@@ -1,5 +1,5 @@
-Test case "ROM"
-===============
+Test case "skeleton"
+====================
 Christoph Thelen <cthelen@hilscher.com>
 :Author Initials: CT
 
