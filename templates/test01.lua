@@ -39,11 +39,11 @@ function run(aParameters)
 	--
 	local aulParameter = {
 		-- These are parameters passed from LUA to the netX.
-		ulAdd0,
-		ulAdd1,
+		[1] = ulAdd0,
+		[2] = ulAdd1,
 		
 		-- These are the parameters which are returned from the netX to LUA.
-		0
+		[3] = "OUTPUT"
 	}
 	
 	
@@ -61,6 +61,8 @@ function run(aParameters)
 	if ulResult~=0 then
 		error("The test failed!")
 	end
+	
+	print(string.format("The sum of %d and %d is %d.\n", aulParameter[1], aulParameter[2], aulParameter[3]))
 	
 	print("")
 	print(" #######  ##    ## ")
