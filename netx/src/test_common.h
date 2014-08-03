@@ -16,7 +16,7 @@ typedef enum ENUM_TEST_RESULT
 
 typedef struct STRUCT_TEST_PARAMETER
 {
-	unsigned int ulReturnValue;
+	unsigned long ulReturnValue;
 	void *pvUserParameter;
 	void *pvReturnMessage;
 } TEST_PARAMETER_T;
