@@ -45,9 +45,13 @@ clear_bss:
 	bl      test_main
 
 	@ Restore the stack pointer.
-	ldr     r1, =stack_save
-	ldr     r0, [r1]
-	mov     sp, r0
+	ldr     r2, =stack_save
+	ldr     r1, [r2]
+	mov     sp, r1
+
+	@ Save the result in the parameter block.
+	ldr     r1, [sp]
+	str     r0, [r1]
 
 	@ Restore all working registers and jump back to the ROM code.
 	ldmfd   sp!, {r0, r1, r2, r3, lr}
