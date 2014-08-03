@@ -109,7 +109,5 @@ doc = env_default.Asciidoc('targets/doc/skeleton.html', 'README.asciidoc', ASCII
 # Copy all executables.
 Install('targets/testbench/netx/', [testexe_netx500, testexe_netx56, testexe_netx50, testexe_netx10])
 
-# Copy all LUA scripts.
-#Command('targets/testbench/lua/ramtest.lua',  'lua/ramtest.lua', Copy("$TARGET", "$SOURCE"))
-#Command('targets/testbench/ramtest_MEM_IS42S32800B.lua',  'lua/ramtest_MEM_IS42S32800B.lua', Copy("$TARGET", "$SOURCE"))
-#Command('targets/testbench/ramtest_MEM_MT48LC2M32.lua',   'lua/ramtest_MEM_MT48LC2M32.lua',  Copy("$TARGET", "$SOURCE"))
+# Copy the LUA script.
+Install('targets/testbench/', 'templates/test01.lua')
