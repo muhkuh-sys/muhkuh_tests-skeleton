@@ -98,7 +98,7 @@ aAttribs.update(dict({
 	'toclevels': 4
 }))
 
-doc = env_default.Asciidoc('targets/doc/romcrc.html', 'README.asciidoc', ASCIIDOC_BACKEND='html5', ASCIIDOC_ATTRIBUTES=aAttribs)
+doc = env_default.Asciidoc('targets/doc/skeleton.html', 'README.asciidoc', ASCIIDOC_BACKEND='html5', ASCIIDOC_ATTRIBUTES=aAttribs)
 
 
 #----------------------------------------------------------------------------
