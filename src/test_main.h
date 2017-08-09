@@ -5,8 +5,8 @@
 
 typedef struct STRUCT_USER_PARAMETER
 {
-	unsigned long ulAdd0;
-	unsigned long ulAdd1;
+	unsigned long ulOperand0;
+	unsigned long ulOperand1;
 	unsigned long ulSum;
 } USER_PARAMETER_T;
 

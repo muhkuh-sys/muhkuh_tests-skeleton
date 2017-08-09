@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------#
-#   Copyright (C) 2014 by Christoph Thelen                                #
+#   Copyright (C) 2017 by Christoph Thelen                                #
 #   doc_bacardi@users.sourceforge.net                                     #
 #                                                                         #
 #   This program is free software; you can redistribute it and/or modify  #
@@ -25,80 +25,165 @@
 # Set up the Muhkuh Build System.
 #
 SConscript('mbs/SConscript')
-Import('env_default')
+Import('atEnv')
 
 
 #----------------------------------------------------------------------------
 #
-# Create the compiler environments.
+# Create the build environments.
 #
-env_netx500_default = env_default.CreateCompilerEnv('500', ['arch=armv5te'])
-env_netx500_default.Replace(BOOTBLOCK_CHIPTYPE = 500)
+# Create a build environment for the ARM9 based netX chips.
+env_arm9 = atEnv.DEFAULT.CreateEnvironment(['gcc-arm-none-eabi-4.7', 'asciidoc'])
+# TODO: comment the next line out if no netX500 version should be build.
+env_arm9.CreateCompilerEnv('NETX500', ['arch=armv5te'])
+# TODO: comment the next line out if no netX51/52 version should be build.
+env_arm9.CreateCompilerEnv('NETX56', ['arch=armv5te'])
+# TODO: comment the next line out if no netX50 version should be build.
+env_arm9.CreateCompilerEnv('NETX50', ['arch=armv5te'])
+# TODO: comment the next line out if no netX10 version should be build.
+env_arm9.CreateCompilerEnv('NETX10', ['arch=armv5te'])
 
-env_netx56_default = env_default.CreateCompilerEnv('56', ['arch=armv5te'])
-env_netx56_default.Replace(BOOTBLOCK_CHIPTYPE = 56)
+# Create a build environment for the Cortex-R7 and Cortex-A9 based netX chips.
+env_cortexR7 = atEnv.DEFAULT.CreateEnvironment(['gcc-arm-none-eabi-4.9', 'asciidoc'])
+# TODO: comment the next line out if no netX4000 RELAXED version should be build.
+env_cortexR7.CreateCompilerEnv('NETX4000_RELAXED', ['arch=armv7', 'thumb'], ['arch=armv7-r', 'thumb'])
 
-env_netx50_default = env_default.CreateCompilerEnv('50', ['arch=armv5te'])
-env_netx50_default.Replace(BOOTBLOCK_CHIPTYPE = 50)
-
-env_netx10_default = env_default.CreateCompilerEnv('10', ['arch=armv5te'])
-env_netx10_default.Replace(BOOTBLOCK_CHIPTYPE = 10)
-
-Export('env_netx500_default', 'env_netx56_default', 'env_netx50_default', 'env_netx10_default')
+# Create a build environment for the Cortex-M4 based netX chips.
+env_cortexM4 = atEnv.DEFAULT.CreateEnvironment(['gcc-arm-none-eabi-4.9', 'asciidoc'])
+# TODO: comment the next line out if no netX90 MPW version should be build.
+env_cortexM4.CreateCompilerEnv('NETX90_MPW', ['arch=armv7', 'thumb'], ['arch=armv7e-m', 'thumb'])
 
 
 #----------------------------------------------------------------------------
 #
 # Build the platform library.
 #
-PLATFORM_LIB_CFG_BUILDS = [500, 56, 50, 10]
-SConscript('platform/SConscript', exports='PLATFORM_LIB_CFG_BUILDS')
+SConscript('platform/SConscript')
 
 
 #----------------------------------------------------------------------------
 #
 # Get the source code version from the VCS.
 #
-env_default.Version('targets/version/version.h', 'templates/version.h')
+atEnv.DEFAULT.Version('targets/version/version.h', 'templates/version.h')
 
 
 #----------------------------------------------------------------------------
 #
-# Build all sub-projects.
+# This is the list of sources. The elements must be separated with whitespace
+# (i.e. spaces, tabs, newlines). The amount of whitespace does not matter.
 #
-SConscript('netx/SConscript')
-Import('testexe_netx500', 'testexe_netx56', 'testexe_netx50', 'testexe_netx10')
+# The list sources_common is used for all netX versions.
+# The other lists like sources_netx500 contain special sources for this netX.
+#
+sources_common = """
+        src/header.c
+        src/init.S
+        src/test_main.c
+"""
+
+sources_netx500 = """
+"""
+
+sources_netx56 = """
+"""
+
+sources_netx50 = """
+"""
+
+sources_netx10 = """
+"""
 
 
 #----------------------------------------------------------------------------
-#   
+#
+# Build the netX executables.
+#
+
+# Define the include paths for all builds.
+aCppPath = ['src', '#platform/src', '#platform/src/lib', '#targets/version']
+
+# The test name is used to build the file name of the executable.
+# A test name of "skeleton" results in "skeleton_netx500.bin", "skeleton_netx56.bin" and so on.
+strTestName = "skeleton"
+
+# Build the netX500 executable.
+if hasattr(atEnv, 'NETX500') == True:
+    tEnv = atEnv.NETX500.Clone()
+    tEnv.Replace(LDFILE = 'src/netx500/netx500.ld')
+    tEnv.Append(CPPPATH = aCppPath)
+    tSrc = tEnv.SetBuildPath('targets/netx500', 'src', sources_common + sources_netx500)
+    tElf = tEnv.Elf('targets/netx500/test.elf', tSrc + tEnv['PLATFORM_LIBRARY'])
+    tTxt = tEnv.ObjDump('targets/netx500/test.txt', tElf, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
+    test_netx500 = tEnv.ObjCopy('targets/netx500/%s_netx500.bin' % strTestName, tElf)
+    Export('test_netx500')
+
+
+# Build the netX51/52 executable.
+if hasattr(atEnv, 'NETX56') == True:
+    tEnv = atEnv.NETX56.Clone()
+    tEnv.Replace(LDFILE = 'src/netx56/netx56.ld')
+    tEnv.Append(CPPPATH = aCppPath)
+    tSrc = tEnv.SetBuildPath('targets/netx56', 'src', sources_common + sources_netx56)
+    tElf = tEnv.Elf('targets/netx56/test.elf', tSrc + tEnv['PLATFORM_LIBRARY'])
+    tTxt = tEnv.ObjDump('targets/netx56/test.txt', tElf, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
+    test_netx56 = tEnv.ObjCopy('targets/netx56/%s_netx56.bin' % strTestName, tElf)
+    Export('test_netx56')
+
+
+# Build the netX50 executable.
+if hasattr(atEnv, 'NETX50') == True:
+    tEnv = atEnv.NETX50.Clone()
+    tEnv.Replace(LDFILE = 'src/netx50/netx50.ld')
+    tEnv.Append(CPPPATH = aCppPath)
+    tSrc = tEnv.SetBuildPath('targets/netx50', 'src', sources_common + sources_netx50)
+    tElf = tEnv.Elf('targets/netx50/test.elf', tSrc + tEnv['PLATFORM_LIBRARY'])
+    tTxt = tEnv.ObjDump('targets/netx50/test.txt', tElf, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
+    test_netx50 = tEnv.ObjCopy('targets/netx50/%s_netx50.bin' % strTestName, tElf)
+    Export('test_netx50')
+
+
+# Build the netX10 executable.
+if hasattr(atEnv, 'NETX10') == True:
+    tEnv = atEnv.NETX10.Clone()
+    tEnv.Replace(LDFILE = 'src/netx10/netx10.ld')
+    tEnv.Append(CPPPATH = aCppPath)
+    tSrc = tEnv.SetBuildPath('targets/netx10', 'src', sources_common + sources_netx10)
+    tElf = tEnv.Elf('targets/netx10/test.elf', tSrc + tEnv['PLATFORM_LIBRARY'])
+    tTxt = tEnv.ObjDump('targets/netx10/test.txt', tElf, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
+    test_netx10 = tEnv.ObjCopy('targets/netx10/%s_netx10.bin' % strTestName, tElf)
+    Export('test_netx10')
+
+
+#----------------------------------------------------------------------------
+#
 # Build the documentation.
-#   
+#
 
 # Get the default attributes.
-aAttribs = env_default['ASCIIDOC_ATTRIBUTES']
+aAttribs = atEnv.DEFAULT['ASCIIDOC_ATTRIBUTES']
 # Add some custom attributes.
 aAttribs.update(dict({
-	# Use ASCIIMath formulas.
-	'asciimath': True,
-	
-	# Embed images into the HTML file as data URIs.
-	'data-uri': True,
-	
-	# Use icons instead of text for markers and callouts.
-	'icons': True,
-	
-	# Use numbers in the table of contents.
-	'numbered': True,
-	
-	# Generate a scrollable table of contents on the left of the text.
-	'toc2': True,
-	
-	# Use 4 levels in the table of contents.
-	'toclevels': 4
+    # Use ASCIIMath formulas.
+    'asciimath': True,
+
+    # Embed images into the HTML file as data URIs.
+    'data-uri': True,
+
+    # Use icons instead of text for markers and callouts.
+    'icons': True,
+
+    # Use numbers in the table of contents.
+    'numbered': True,
+
+    # Generate a scrollable table of contents on the left of the text.
+    'toc2': True,
+
+    # Use 4 levels in the table of contents.
+    'toclevels': 4
 }))
 
-doc = env_default.Asciidoc('targets/doc/skeleton.html', 'README.asciidoc', ASCIIDOC_BACKEND='html5', ASCIIDOC_ATTRIBUTES=aAttribs)
+tDoc = atEnv.DEFAULT.Asciidoc('targets/doc/skeleton.html', 'README.asciidoc', ASCIIDOC_BACKEND='html5', ASCIIDOC_ATTRIBUTES=aAttribs)
 
 
 #----------------------------------------------------------------------------
@@ -107,7 +192,7 @@ doc = env_default.Asciidoc('targets/doc/skeleton.html', 'README.asciidoc', ASCII
 #
 
 # Copy all executables.
-Install('targets/testbench/netx/', [testexe_netx500, testexe_netx56, testexe_netx50, testexe_netx10])
+#Install('targets/testbench/netx/', [testexe_netx500, testexe_netx56, testexe_netx50, testexe_netx10])
 
 # Copy the LUA script.
-Install('targets/testbench/', 'templates/test01.lua')
+#Install('targets/testbench/', 'templates/test01.lua')

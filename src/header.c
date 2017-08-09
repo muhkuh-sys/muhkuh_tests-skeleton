@@ -19,28 +19,28 @@
  ***************************************************************************/
 
 
-#ifndef __HEADER_H__
-#define __HEADER_H__
+#include "header.h"
+#include "version.h"
 
 
-typedef unsigned long (*PFN_START)(unsigned long ulParameter);
+extern unsigned long load_address[];
+unsigned long start(unsigned long ulParameter);
+extern unsigned long parameter_start_address[];
+extern unsigned long parameter_end_address[];
 
-typedef struct VERSION_HEADER_STRUCT
+
+const VERSION_HEADER_T tVersionHeader =
 {
-	char acMagic[4];
-	unsigned long ulVersion;
+	.acMagic = { 'm', 'o', 'o', 'h' },
+	.ulVersion = 0x00010001,
 
-	unsigned long *pulLoadAddress;
-	PFN_START pfnExecutionAddress;
-	unsigned long *pulParameterStart;
-	unsigned long *pulParameterEnd;
+	.pulLoadAddress = load_address,
+	.pfnExecutionAddress = start,
+	.pulParameterStart = parameter_start_address,
+	.pulParameterEnd = parameter_end_address,
 
-	unsigned long ulVersionMaj;
-	unsigned long ulVersionMin;
-	const char    acVersionVcs[16];
-} VERSION_HEADER_T;
-
-extern const VERSION_HEADER_T tVersionHeader __attribute__ ((section (".header")));
-
-
-#endif  /* __HEADER_H__ */
+	.ulVersionMajor = VERSION_MAJOR,
+	.ulVersionMinor = VERSION_MINOR,
+	.ulVersionMicro = VERSION_MICRO,
+	.acVersionVcs = VERSION_VCS
+};
