@@ -116,7 +116,6 @@ if hasattr(atEnv, 'NETX500') == True:
     tElf = tEnv.Elf('targets/netx500/test.elf', tSrc + tEnv['PLATFORM_LIBRARY'])
     tTxt = tEnv.ObjDump('targets/netx500/test.txt', tElf, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
     test_netx500 = tEnv.ObjCopy('targets/netx500/%s_netx500.bin' % strTestName, tElf)
-    Export('test_netx500')
 
 
 # Build the netX51/52 executable.
@@ -128,7 +127,6 @@ if hasattr(atEnv, 'NETX56') == True:
     tElf = tEnv.Elf('targets/netx56/test.elf', tSrc + tEnv['PLATFORM_LIBRARY'])
     tTxt = tEnv.ObjDump('targets/netx56/test.txt', tElf, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
     test_netx56 = tEnv.ObjCopy('targets/netx56/%s_netx56.bin' % strTestName, tElf)
-    Export('test_netx56')
 
 
 # Build the netX50 executable.
@@ -140,7 +138,6 @@ if hasattr(atEnv, 'NETX50') == True:
     tElf = tEnv.Elf('targets/netx50/test.elf', tSrc + tEnv['PLATFORM_LIBRARY'])
     tTxt = tEnv.ObjDump('targets/netx50/test.txt', tElf, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
     test_netx50 = tEnv.ObjCopy('targets/netx50/%s_netx50.bin' % strTestName, tElf)
-    Export('test_netx50')
 
 
 # Build the netX10 executable.
@@ -152,7 +149,6 @@ if hasattr(atEnv, 'NETX10') == True:
     tElf = tEnv.Elf('targets/netx10/test.elf', tSrc + tEnv['PLATFORM_LIBRARY'])
     tTxt = tEnv.ObjDump('targets/netx10/test.txt', tElf, OBJDUMP_FLAGS=['--disassemble', '--source', '--all-headers', '--wide'])
     test_netx10 = tEnv.ObjCopy('targets/netx10/%s_netx10.bin' % strTestName, tElf)
-    Export('test_netx10')
 
 
 #----------------------------------------------------------------------------
@@ -192,7 +188,16 @@ tDoc = atEnv.DEFAULT.Asciidoc('targets/doc/skeleton.html', 'README.asciidoc', AS
 #
 
 # Copy all executables.
-#Install('targets/testbench/netx/', [testexe_netx500, testexe_netx56, testexe_netx50, testexe_netx10])
+if hasattr(atEnv, 'NETX500') == True:
+    Install('targets/testbench/netx/', test_netx500)
+if hasattr(atEnv, 'NETX56') == True:
+    Install('targets/testbench/netx/', test_netx56)
+if hasattr(atEnv, 'NETX50') == True:
+    Install('targets/testbench/netx/', test_netx50)
+if hasattr(atEnv, 'NETX10') == True:
+    Install('targets/testbench/netx/', test_netx10)
 
-# Copy the LUA script.
-#Install('targets/testbench/', 'templates/test01.lua')
+# Copy the test template and fill out the ID and NAME fields.
+# This will be done by the jonchki environment for real tests.
+tTest = atEnv.DEFAULT.Filter('targets/tests/test01.lua', 'templates/test.lua', SUBSTITUTIONS={'ID':'01', 'NAME':'TestSkeleton'})
+Install('targets/testbench/', tTest)
